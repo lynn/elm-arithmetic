@@ -12,8 +12,17 @@ module Arithmetic
 {-| A library that provides useful number-theoretical functions for dealing
 with integers, primes, divisibility, et cetera.
 
+# Primes
+@docs isPrime, primesBelow, primeFactors, primeExponents
+
 # Parity
 @docs isEven, isOdd
+
+# Divisors
+@docs divides, isMultipleOf, divisors, properDivisors, numDivisors
+
+# GCD and LCM
+@docs gcd, lcm, isCoprimeTo, totient
 
 # Base conversion
 @docs toBase, fromBase
@@ -24,17 +33,9 @@ with integers, primes, divisibility, et cetera.
 # Cubes
 @docs cbrt, intCubeRoot, exactIntCubeRoot, isCube
 
-# Divisors
-@docs divides, isMultipleOf, divisors, properDivisors, numDivisors
-
-# GCD and LCM
-@docs gcd, lcm, isCoprimeTo, totient
-
 # Modular arithmetic
 @docs powerMod
 
-# Primes
-@docs isPrime, primesBelow, primeFactors, primeExponents
 -}
 
 import Array
