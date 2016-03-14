@@ -1,10 +1,14 @@
 {
-    "version": "1.0.0",
+    "version": "1.0.1",
     "summary": "Library for integer arithmetic: primes, bases, divisors, gcd...",
     "repository": "https://github.com/lynn/elm-arithmetic.git",
     "license": "BSD3",
-    "source-directories": ["src"],
-    "exposed-modules": ["Arithmetic"],
+    "source-directories": [
+        "src"
+    ],
+    "exposed-modules": [
+        "Arithmetic"
+    ],
     "dependencies": {
         "elm-lang/core": "3.0.0 <= v < 4.0.0"
     },
