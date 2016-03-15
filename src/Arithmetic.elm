@@ -1,11 +1,11 @@
 module Arithmetic
     ( isEven, isOdd
     , toBase, fromBase
-    , intSquareRoot, exactIntSquareRoot, isSquare
-    , cbrt, intCubeRoot, exactIntCubeRoot, isCube
+    , squareRoot, safeSquareRoot, intSquareRoot, exactIntSquareRoot, isSquare
+    , cubeRoot, intCubeRoot, exactIntCubeRoot, isCube
     , divides, isMultipleOf, divisors, properDivisors, numDivisors
-    , gcd, lcm, isCoprimeTo, totient
-    , powerMod
+    , gcd, lcm, isCoprimeTo, totient, extendedGcd
+    , powerMod, modularInverse, chineseRemainder
     , isPrime, primesBelow, primeFactors, primeExponents
     ) where
 
@@ -22,23 +22,24 @@ with integers, primes, divisibility, et cetera.
 @docs divides, isMultipleOf, divisors, properDivisors, numDivisors
 
 # GCD and LCM
-@docs gcd, lcm, isCoprimeTo, totient
+@docs gcd, lcm, isCoprimeTo, totient, extendedGcd
 
 # Base conversion
 @docs toBase, fromBase
 
 # Squares
-@docs intSquareRoot, exactIntSquareRoot, isSquare
+@docs squareRoot, safeSquareRoot, intSquareRoot, exactIntSquareRoot, isSquare
 
 # Cubes
-@docs cbrt, intCubeRoot, exactIntCubeRoot, isCube
+@docs cubeRoot, intCubeRoot, exactIntCubeRoot, isCube
 
 # Modular arithmetic
-@docs powerMod
+@docs powerMod, modularInverse, chineseRemainder
 
 -}
 
 import Array
+import Graphics.Element exposing (show)
 
 
 {- Parity -}
@@ -95,7 +96,29 @@ fromBase base =
 
 {- Squares -}
 
-{-| Integer square root, rounding down.
+{-| Take the square root of a number. Return `NaN` (not a number) for negative
+arguments.
+
+    squareRoot 5.76 == 2.4
+    squareRoot (-1) |> isNaN
+-}
+squareRoot : Float -> Float
+squareRoot = sqrt
+
+
+{-| Safely take the square root of a number: return `Just (squareRoot n)` if
+the input `n` is nonnegative; otherwise, return `Nothing`.
+
+    squareRoot 5.76 == Just 2.4
+    squareRoot (-1) == Nothing
+-}
+safeSquareRoot : Float -> Maybe Float
+safeSquareRoot n =
+    if n < 0 then Nothing else Just (sqrt n)
+
+
+{-| Take the square root, rounding down. Return `NaN` (not a number) for
+negative arguments.
 
     intSquareRoot 20 == 4
     intSquareRoot 25 == 5
@@ -105,8 +128,8 @@ intSquareRoot =
     toFloat >> sqrt >> round
 
 
-{-| Integer square root returning `Nothing` if the given number is not a
-square.
+{-| Return `Just s` if the given integer is a square, and `s` is its square
+root; otherwise, return `Nothing`.
 
     exactIntSquareRoot 20 == Nothing
     exactIntSquareRoot 25 == Just 5
@@ -138,10 +161,10 @@ isSquare n =
 
 {-| Take the cube root of a number.
 
-    cbrt 15.625 == 2.5
+    cubeRoot 15.625 == 2.5
 -}
-cbrt : Float -> Float
-cbrt n =
+cubeRoot : Float -> Float
+cubeRoot n =
     n ^ (1/3)
 
 
@@ -152,10 +175,11 @@ cbrt n =
 -}
 intCubeRoot : Int -> Int
 intCubeRoot =
-    toFloat >> cbrt >> round
+    toFloat >> cubeRoot >> round
 
 
-{-| Integer cube root, returning `Nothing` if the given number is not a cube.
+{-| Return `Just s` if the given integer is a cube, and `s` is its cube root;
+otherwise, return `Nothing`.
 
     exactIntCubeRoot 800 == Nothing
     exactIntCubeRoot 1000 == Just 10
@@ -286,6 +310,33 @@ totient n =
         List.foldr f n' (List.map fst (primeExponents n'))
 
 
+{-| Given `a` and `b`, compute integers `(d, u, v)` so that `a * u + b * v ==
+d` where `d == gcd a b`. (These are known as [Bézout coefficients](
+https://en.wikipedia.org/wiki/B%C3%A9zout%27s_identity). If the inputs are both
+positive, the solution returned satisfies `abs u < b // gcd a b` and
+`abs v < a // gcd a b`.)
+
+    extendedGcd 1215 465 == (15, -13, 34)
+        -- because gcd 1215 465 == 15 == -13 * 1215 + 34 * 465
+-}
+extendedGcd : Int -> Int -> (Int, Int, Int)
+extendedGcd a b =
+    let
+        egcd n1 o1 n2 o2 r s =
+            if s == 0 then
+                (r, o1, o2)
+            else
+                let q = r // s in egcd (o1-q*n1) n1 (o2-q*n2) n2 s (rem r s)
+
+        (d, x, y) =
+            egcd 0 1 1 0 (abs a) (abs b)
+
+        u = if a < 0 then negate x else x
+        v = if b < 0 then negate y else y
+    in
+        (d, u, v)
+
+
 {- Modular arithmetic -}
 
 {-| `powerMod b e m` efficiently calculates `b ^ e` (modulo `m`). It assumes
@@ -326,6 +377,73 @@ shiftToOdd n =
                 f (k + 1) (m // 2)
     in
         f 0 n
+
+
+{-| Given a number `a` and a modulus `n`, return the multiplicative inverse of
+`a` modulo `n`, if it exists. That is: try to return `Just b`, with
+`0 <= b < n`, so that `a * b == 1` modulo `n`, but return `Nothing` if no such
+`b` exists. (`b` exists precisely when `a` and the modulus `n` are coprime.)
+
+    modularInverse 3 11 == Just 4    -- 3 * 4 == 12 == 1 (mod 11)
+    modularInverse 3 15 == Nothing   -- 3 and 15 aren't coprime
+-}
+modularInverse : Int -> Int -> Maybe Int
+modularInverse a modulus =
+    let
+        (d, x, _) = extendedGcd a modulus
+    in
+        if d == 1 then Just (x % modulus) else Nothing
+
+
+{-| Given a list of residue-modulus pairs `[(r1, m1), (r2, m2), ...]`, solve
+the system of linear congruences:
+
+    x = r1 (mod m1)
+    x = r2 (mod m2)
+    ...
+
+Let `M` be the product of all moduli in the list. The [Chinese remainder
+theorem](https://en.wikipedia.org/wiki/Chinese_remainder_theorem) tells us that
+
+* if all of the moduli are pairwise coprime (their `gcd` is 1), there are
+  infinitely many solutions, all congruent `mod M`;
+* if there is a pair of non-coprime moduli in the list, there is no solution.
+
+The result is a solution `Just x` with `0 <= x < M` in the first case; or
+`Nothing` if the system is unsolvable.
+
+    chineseRemainder [(10, 11), (4, 12), (12, 13)] == Just 1000
+        -- Solution to x = 10 (mod 11), x = 4 (mod 12), x = 12 (mod 13).
+
+    chineseRemainder [(2, 3), (4, 6)] == Nothing
+        -- 3 and 6 are not coprime, so there is no solution.
+
+    chineseRemainder [] == Just 0
+        -- The trivial solution, modulo M = 1.
+-}
+chineseRemainder : List (Int, Int) -> Maybe Int
+chineseRemainder equations =
+    let
+        (residues, moduli) = List.unzip equations
+        m = List.product moduli
+        v = List.map (\x -> m // x) moduli
+        
+        fromJustCons x acc =
+            case x of
+                Just y -> Maybe.map ((::) y) acc
+                Nothing -> Nothing
+
+        fromJustList =
+            List.foldr fromJustCons (Just [])
+
+        inverses = fromJustList (List.map2 modularInverse v moduli)
+    in
+        fromJustList (List.map2 modularInverse v moduli)
+        |> Maybe.map
+            (List.map2 (*) residues
+                >> List.map2 (*) v
+                >> List.sum
+                >> flip (%) m)
 
 
 {- Primes -}
