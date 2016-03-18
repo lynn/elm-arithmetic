@@ -3,7 +3,7 @@ module Arithmetic
     , toBase, fromBase
     , squareRoot, safeSquareRoot, intSquareRoot, exactIntSquareRoot, isSquare
     , cubeRoot, intCubeRoot, exactIntCubeRoot, isCube
-    , divides, isMultipleOf, divisors, properDivisors, numDivisors
+    , divides, isMultipleOf, divisors, properDivisors, divisorCount
     , gcd, lcm, isCoprimeTo, totient, extendedGcd
     , powerMod, modularInverse, chineseRemainder
     , isPrime, primesBelow, primeFactors, primeExponents
@@ -19,7 +19,7 @@ with integers, primes, divisibility, et cetera.
 @docs isEven, isOdd
 
 # Divisors
-@docs divides, isMultipleOf, divisors, properDivisors, numDivisors
+@docs divides, isMultipleOf, divisors, properDivisors, divisorCount
 
 # GCD and LCM
 @docs gcd, lcm, isCoprimeTo, totient, extendedGcd
@@ -255,8 +255,8 @@ properDivisors n =
 
 {-| Get the number of divisors of a number (counting itself).
 -}
-numDivisors : Int -> Int
-numDivisors =
+divisorCount : Int -> Int
+divisorCount =
     primeExponents >> List.map (\(_, e) -> e + 1) >> List.product
 
 
