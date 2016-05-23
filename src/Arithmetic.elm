@@ -1,4 +1,4 @@
-module Arithmetic
+module Arithmetic exposing
     ( isEven, isOdd
     , toBase, fromBase
     , squareRoot, safeSquareRoot, intSquareRoot, exactIntSquareRoot, isSquare
@@ -7,7 +7,7 @@ module Arithmetic
     , gcd, lcm, isCoprimeTo, totient, extendedGcd
     , powerMod, modularInverse, chineseRemainder
     , isPrime, primesBelow, primeFactors, primeExponents
-    ) where
+    )
 
 {-| A library that provides useful number-theoretical functions for dealing
 with integers, primes, divisibility, et cetera.
@@ -39,7 +39,6 @@ with integers, primes, divisibility, et cetera.
 -}
 
 import Array
-import Graphics.Element exposing (show)
 
 
 {- Parity -}
@@ -84,7 +83,7 @@ toBase base n =
         go n' []
 
 
-{-| Interpret a list of digits as a number in the given base. The input is 
+{-| Interpret a list of digits as a number in the given base. The input is
 expected to consist of integers `d` for which `0 <= d < base`.
 
     fromBase 2 [1, 0, 1, 0, 1, 0] = 42
@@ -288,7 +287,7 @@ lcm a b =
 {-| Test whether two integers are coprime.
 
     56 `isCoprimeTo` 80 == False
-    5 `isCoprimeTo` 8 
+    5 `isCoprimeTo` 8
 -}
 isCoprimeTo : Int -> Int -> Bool
 isCoprimeTo a b =
@@ -427,7 +426,7 @@ chineseRemainder equations =
         (residues, moduli) = List.unzip equations
         m = List.product moduli
         v = List.map (\x -> m // x) moduli
-        
+
         fromJustCons x acc =
             case x of
                 Just y -> Maybe.map ((::) y) acc
