@@ -1,6 +1,6 @@
 ### `Arithmetic`: Elm library for integer arithmetic and number theory
 
-#### (View the docs [here](http://package.elm-lang.org/packages/lynn/elm-arithmetic/2.0.0/Arithmetic).)
+#### (View the docs [here](http://package.elm-lang.org/packages/lynn/elm-arithmetic/2.0.2/Arithmetic).)
 
 Implements some useful functions involving:
 * Parity and modular arithmetic
