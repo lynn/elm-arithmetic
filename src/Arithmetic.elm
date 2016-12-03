@@ -40,6 +40,7 @@ with integers, primes, divisibility, et cetera.
 
 import Array
 
+fst (a, _) = a
 
 {- Parity -}
 
@@ -73,14 +74,14 @@ made positive first.
 toBase : Int -> Int -> List Int
 toBase base n =
     let
-        n' = abs n
+        n0 = abs n
         go x acc =
             if x <= 0 then
                 acc
             else
                 go (x // base) ((x % base) :: acc)
     in
-        go n' []
+        go n0 []
 
 
 {-| Interpret a list of digits as a number in the given base. The input is
@@ -236,7 +237,7 @@ divisors : Int -> List Int
 divisors =
     let
         f (p, e) =
-            List.concatMap (\a -> List.map (\x -> p ^ x * a) [0..e])
+            List.concatMap (\a -> List.map (\x -> p ^ x * a) (List.range 0 e))
     in
         primeExponents >> List.foldr f [1] >> List.sort
 
@@ -269,9 +270,9 @@ divisorCount =
 gcd : Int -> Int -> Int
 gcd a b =
     let
-        gcd' a b = if b == 0 then a else gcd' b (a % b)
+        gcd0 a b = if b == 0 then a else gcd0 b (a % b)
     in
-        gcd' (abs a) (abs b)
+        gcd0 (abs a) (abs b)
 
 
 {-| Calculate the least common multiple of two integers. `lcm x 0` and
@@ -303,10 +304,10 @@ isCoprimeTo a b =
 totient : Int -> Int
 totient n =
     let
-        n' = abs n
+        n0 = abs n
         f p n = n * (p - 1) // p
     in
-        List.foldr f n' (List.map fst (primeExponents n'))
+        List.foldr f n0 (List.map fst (primeExponents n0))
 
 
 {-| Given `a` and `b`, compute integers `(d, u, v)` so that `a * u + b * v ==
@@ -352,9 +353,9 @@ powerMod base exponent modulus =
             r
         else
             let
-                r' = if isOdd e then (r * b) % modulus else r
+                r0 = if isOdd e then (r * b) % modulus else r
             in
-                go (b * b % modulus) (e // 2) r'
+                go (b * b % modulus) (e // 2) r0
     in
         if modulus == 1 then 0 else go (base % modulus) exponent 1
 
@@ -512,7 +513,7 @@ Eratosthenes.
 primesBelow : Int -> List Int
 primesBelow n =
     let
-        ps = 2 :: List.map (\x -> 2 * x + 1) [1..intSquareRoot n // 2]
+        ps = 2 :: List.map (\x -> 2 * x + 1) (List.range 1 (intSquareRoot n // 2))
 
         initial =
             Array.repeat n True
