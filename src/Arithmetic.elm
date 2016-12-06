@@ -1,13 +1,36 @@
-module Arithmetic exposing
-    ( isEven, isOdd
-    , toBase, fromBase
-    , squareRoot, safeSquareRoot, intSquareRoot, exactIntSquareRoot, isSquare
-    , cubeRoot, intCubeRoot, exactIntCubeRoot, isCube
-    , divides, isMultipleOf, divisors, properDivisors, divisorCount
-    , gcd, lcm, isCoprimeTo, totient, extendedGcd
-    , powerMod, modularInverse, chineseRemainder
-    , isPrime, primesBelow, primeFactors, primeExponents
-    )
+module Arithmetic
+    exposing
+        ( isEven
+        , isOdd
+        , toBase
+        , fromBase
+        , squareRoot
+        , safeSquareRoot
+        , intSquareRoot
+        , exactIntSquareRoot
+        , isSquare
+        , cubeRoot
+        , intCubeRoot
+        , exactIntCubeRoot
+        , isCube
+        , divides
+        , isMultipleOf
+        , divisors
+        , properDivisors
+        , divisorCount
+        , gcd
+        , lcm
+        , isCoprimeTo
+        , totient
+        , extendedGcd
+        , powerMod
+        , modularInverse
+        , chineseRemainder
+        , isPrime
+        , primesBelow
+        , primeFactors
+        , primeExponents
+        )
 
 {-| A library that provides useful number-theoretical functions for dealing
 with integers, primes, divisibility, et cetera.
@@ -43,6 +66,7 @@ import Array
 
 {- Parity -}
 
+
 {-| Test whether an integer is even.
 
     isEven 2 == True
@@ -63,7 +87,9 @@ isOdd n =
     n % 2 /= 0
 
 
+
 {- Base conversion -}
+
 
 {-| Convert a number to a list of digits in the given base. The input number is
 made positive first.
@@ -73,14 +99,16 @@ made positive first.
 toBase : Int -> Int -> List Int
 toBase base n =
     let
-        n' = abs n
+        n_ =
+            abs n
+
         go x acc =
             if x <= 0 then
                 acc
             else
                 go (x // base) ((x % base) :: acc)
     in
-        go n' []
+        go n_ []
 
 
 {-| Interpret a list of digits as a number in the given base. The input is
@@ -93,7 +121,9 @@ fromBase base =
     List.foldl (\x acc -> acc * base + x) 0
 
 
+
 {- Squares -}
+
 
 {-| Take the square root of a number. Return `NaN` (not a number) for negative
 arguments.
@@ -102,7 +132,8 @@ arguments.
     squareRoot (-1) |> isNaN
 -}
 squareRoot : Float -> Float
-squareRoot = sqrt
+squareRoot =
+    sqrt
 
 
 {-| Safely take the square root of a number: return `Just (squareRoot n)` if
@@ -113,7 +144,10 @@ the input `n` is nonnegative; otherwise, return `Nothing`.
 -}
 safeSquareRoot : Float -> Maybe Float
 safeSquareRoot n =
-    if n < 0 then Nothing else Just (sqrt n)
+    if n < 0 then
+        Nothing
+    else
+        Just (sqrt n)
 
 
 {-| Take the square root, rounding down. Return `NaN` (not a number) for
@@ -136,9 +170,13 @@ root; otherwise, return `Nothing`.
 exactIntSquareRoot : Int -> Maybe Int
 exactIntSquareRoot n =
     let
-        s = intSquareRoot n
+        s =
+            intSquareRoot n
     in
-        if s * s == n then Just s else Nothing
+        if s * s == n then
+            Just s
+        else
+            Nothing
 
 
 {-| Test whether a number is a square.
@@ -149,14 +187,16 @@ exactIntSquareRoot n =
 isSquare : Int -> Bool
 isSquare n =
     let
-        r = n % 48
+        r =
+            n % 48
     in
-        (r == 0 || r == 1 || r == 4 || r == 9 || r == 16
-                || r == 25 || r == 33 || r == 36) &&
-            intSquareRoot n ^ 2 == n
+        (r == 0 || r == 1 || r == 4 || r == 9 || r == 16 ||
+         r == 25 || r == 33 || r == 36) && intSquareRoot n ^ 2 == n
+
 
 
 {- Cubes -}
+
 
 {-| Take the cube root of a number.
 
@@ -164,7 +204,7 @@ isSquare n =
 -}
 cubeRoot : Float -> Float
 cubeRoot n =
-    n ^ (1/3)
+    n ^ (1 / 3)
 
 
 {-| Integer cube root, rounding down.
@@ -186,9 +226,13 @@ otherwise, return `Nothing`.
 exactIntCubeRoot : Int -> Maybe Int
 exactIntCubeRoot n =
     let
-        s = intCubeRoot n
+        s =
+            intCubeRoot n
     in
-        if s ^ 3 == n then Just s else Nothing
+        if s ^ 3 == n then
+            Just s
+        else
+            Nothing
 
 
 {-| Test whether a number is a cube.
@@ -199,14 +243,16 @@ exactIntCubeRoot n =
 isCube : Int -> Bool
 isCube n =
     let
-        r = n % 63
+        r =
+            n % 63
     in
-        (r == 0 || r == 1 || r == 8 || r == 27 || r == 28
-                || r == 35 || r == 36 || r == 55 || r == 62) &&
-            intCubeRoot n ^ 3 == n
+        (r == 0 || r == 1 || r == 8 || r == 27 || r == 28 || r == 35 ||
+         r == 36 || r == 55 || r == 62) && intCubeRoot n ^ 3 == n
+
 
 
 {- Divisors -}
+
 
 {-| Test whether one number divides another.
 
@@ -235,10 +281,10 @@ isMultipleOf a b =
 divisors : Int -> List Int
 divisors =
     let
-        f (p, e) =
-            List.concatMap (\a -> List.map (\x -> p ^ x * a) [0..e])
+        f ( p, e ) =
+            List.concatMap (\a -> List.map (\x -> p ^ x * a) (List.range 0 e))
     in
-        primeExponents >> List.foldr f [1] >> List.sort
+        primeExponents >> List.foldr f [ 1 ] >> List.sort
 
 
 {-| Get all proper divisors (i.e., divisors less than the input) of a number,
@@ -249,17 +295,19 @@ in ascending order.
 properDivisors : Int -> List Int
 properDivisors n =
     divisors n
-    |> List.filter ((/=) n)
+        |> List.filter ((/=) n)
 
 
 {-| Get the number of divisors of a number (counting itself).
 -}
 divisorCount : Int -> Int
 divisorCount =
-    primeExponents >> List.map (\(_, e) -> e + 1) >> List.product
+    primeExponents >> List.map (\( _, e ) -> e + 1) >> List.product
+
 
 
 {- GCD and LCM -}
+
 
 {-| Calculate the greatest common divisor of two integers. `gcd x 0` and
 `gcd 0 x` both return `x`. Negative arguments are made positive first.
@@ -269,9 +317,13 @@ divisorCount =
 gcd : Int -> Int -> Int
 gcd a b =
     let
-        gcd' a b = if b == 0 then a else gcd' b (a % b)
+        gcd_ a b =
+            if b == 0 then
+                a
+            else
+                gcd_ b (a % b)
     in
-        gcd' (abs a) (abs b)
+        gcd_ (abs a) (abs b)
 
 
 {-| Calculate the least common multiple of two integers. `lcm x 0` and
@@ -303,10 +355,13 @@ isCoprimeTo a b =
 totient : Int -> Int
 totient n =
     let
-        n' = abs n
-        f p n = n * (p - 1) // p
+        n_ =
+            abs n
+
+        f p n =
+            n * (p - 1) // p
     in
-        List.foldr f n' (List.map fst (primeExponents n'))
+        List.foldr f n_ (List.map Tuple.first (primeExponents n_))
 
 
 {-| Given `a` and `b`, compute integers `(d, u, v)` so that `a * u + b * v ==
@@ -318,25 +373,40 @@ positive, the solution returned satisfies `abs u < b // gcd a b` and
     extendedGcd 1215 465 == (15, -13, 34)
         -- because gcd 1215 465 == 15 == -13 * 1215 + 34 * 465
 -}
-extendedGcd : Int -> Int -> (Int, Int, Int)
+extendedGcd : Int -> Int -> ( Int, Int, Int )
 extendedGcd a b =
     let
         egcd n1 o1 n2 o2 r s =
             if s == 0 then
-                (r, o1, o2)
+                ( r, o1, o2 )
             else
-                let q = r // s in egcd (o1-q*n1) n1 (o2-q*n2) n2 s (rem r s)
+                let
+                    q =
+                        r // s
+                in
+                    egcd (o1 - q * n1) n1 (o2 - q * n2) n2 s (rem r s)
 
-        (d, x, y) =
+        ( d, x, y ) =
             egcd 0 1 1 0 (abs a) (abs b)
 
-        u = if a < 0 then negate x else x
-        v = if b < 0 then negate y else y
+        u =
+            if a < 0 then
+                negate x
+            else
+                x
+
+        v =
+            if b < 0 then
+                negate y
+            else
+                y
     in
-        (d, u, v)
+        ( d, u, v )
+
 
 
 {- Modular arithmetic -}
+
 
 {-| `powerMod b e m` efficiently calculates `b ^ e` (modulo `m`). It assumes
 `b >= 0`, `e >= 0` and `m >= 1`.
@@ -347,31 +417,42 @@ For example, to compute `4147 ^ 8671 % 1000` efficiently:
 -}
 powerMod : Int -> Int -> Int -> Int
 powerMod base exponent modulus =
-    let go b e r =
-        if e == 0 then
-            r
-        else
-            let
-                r' = if isOdd e then (r * b) % modulus else r
-            in
-                go (b * b % modulus) (e // 2) r'
+    let
+        go b e r =
+            if e == 0 then
+                r
+            else
+                let
+                    r_ =
+                        if isOdd e then
+                            (r * b) % modulus
+                        else
+                            r
+                in
+                    go (b * b % modulus) (e // 2) r_
     in
-        if modulus == 1 then 0 else go (base % modulus) exponent 1
+        if modulus == 1 then
+            0
+        else
+            go (base % modulus) exponent 1
+
 
 
 {- Halve this number until it is odd. Then, return a tuple `(k, m)`, where
-`k` is the number of times the input was halved, and `m` is the resulting odd
-number. In other words, the original number equals `(2 ^ k) * m`.
+   `k` is the number of times the input was halved, and `m` is the resulting odd
+   number. In other words, the original number equals `(2 ^ k) * m`.
 
-    shiftToOdd 999 == (0, 999)
-    shiftToOdd 1000 == (3, 125)
+       shiftToOdd 999 == (0, 999)
+       shiftToOdd 1000 == (3, 125)
 -}
-shiftToOdd : Int -> (Int, Int)
+
+
+shiftToOdd : Int -> ( Int, Int )
 shiftToOdd n =
     let
         f k m =
             if m % 2 == 1 then
-                (k, m)
+                ( k, m )
             else
                 f (k + 1) (m // 2)
     in
@@ -389,9 +470,13 @@ shiftToOdd n =
 modularInverse : Int -> Int -> Maybe Int
 modularInverse a modulus =
     let
-        (d, x, _) = extendedGcd a modulus
+        ( d, x, _ ) =
+            extendedGcd a modulus
     in
-        if d == 1 then Just (x % modulus) else Nothing
+        if d == 1 then
+            Just (x % modulus)
+        else
+            Nothing
 
 
 {-| Given a list of residue-modulus pairs `[(r1, m1), (r2, m2), ...]`, solve
@@ -420,32 +505,44 @@ The result is a solution `Just x` with `0 <= x < M` in the first case; or
     chineseRemainder [] == Just 0
         -- The trivial solution, modulo M = 1.
 -}
-chineseRemainder : List (Int, Int) -> Maybe Int
+chineseRemainder : List ( Int, Int ) -> Maybe Int
 chineseRemainder equations =
     let
-        (residues, moduli) = List.unzip equations
-        m = List.product moduli
-        v = List.map (\x -> m // x) moduli
+        ( residues, moduli ) =
+            List.unzip equations
+
+        m =
+            List.product moduli
+
+        v =
+            List.map (\x -> m // x) moduli
 
         fromJustCons x acc =
             case x of
-                Just y -> Maybe.map ((::) y) acc
-                Nothing -> Nothing
+                Just y ->
+                    Maybe.map ((::) y) acc
+
+                Nothing ->
+                    Nothing
 
         fromJustList =
             List.foldr fromJustCons (Just [])
 
-        inverses = fromJustList (List.map2 modularInverse v moduli)
+        inverses =
+            fromJustList (List.map2 modularInverse v moduli)
     in
         fromJustList (List.map2 modularInverse v moduli)
-        |> Maybe.map
-            (List.map2 (*) residues
-                >> List.map2 (*) v
-                >> List.sum
-                >> flip (%) m)
+            |> Maybe.map
+                (List.map2 (*) residues
+                    >> List.map2 (*) v
+                    >> List.sum
+                    >> flip (%) m
+                )
+
 
 
 {- Primes -}
+
 
 {-| Test whether an integer is a positive prime.
 
@@ -456,15 +553,13 @@ isPrime : Int -> Bool
 isPrime n =
     if n < 13 then
         n == 2 || n == 3 || n == 5 || n == 7 || n == 11
-
     else if n % 2 == 0 || n % 3 == 0 || n % 5 == 0 then
         False
-
     else if n < 1373653 then
-        millerRabin n [2, 3]
-
-    else -- n < 2152302898747
-        millerRabin n [2, 3, 5, 7, 11]
+        millerRabin n [ 2, 3 ]
+    else
+        -- n < 2152302898747
+        millerRabin n [ 2, 3, 5, 7, 11 ]
 
 
 {-| Perform a Miller-Rabit pseudoprimality test on `n` with the given
@@ -477,28 +572,35 @@ integer is a probable prime, and `False` if it is definitely composite.
 millerRabin : Int -> List Int -> Bool
 millerRabin n witnesses =
     let
-        (s, d) = shiftToOdd (n - 1)
+        ( s, d ) =
+            shiftToOdd (n - 1)
 
         check l x =
             if l <= 0 then
                 True
             else
                 let
-                    y = powerMod x 2 n
+                    y =
+                        powerMod x 2 n
                 in
                     y == 1 || (y /= n - 1 && check (l - 1) y)
 
         go witnesses =
             case witnesses of
-                [] -> True
+                [] ->
+                    True
+
                 a :: rest ->
-                    let x = powerMod a d n in
-                    if x == 1 || x == n - 1 then
-                        go rest
-                    else if check (s - 1) x then
-                        False
-                    else
-                        go rest
+                    let
+                        x =
+                            powerMod a d n
+                    in
+                        if x == 1 || x == n - 1 then
+                            go rest
+                        else if check (s - 1) x then
+                            False
+                        else
+                            go rest
     in
         go witnesses
 
@@ -512,12 +614,13 @@ Eratosthenes.
 primesBelow : Int -> List Int
 primesBelow n =
     let
-        ps = 2 :: List.map (\x -> 2 * x + 1) [1..intSquareRoot n // 2]
+        ps =
+            2 :: List.map (\x -> 2 * x + 1) (List.range 1 (intSquareRoot n // 2))
 
         initial =
             Array.repeat n True
-            |> Array.set 0 False
-            |> Array.set 1 False
+                |> Array.set 0 False
+                |> Array.set 1 False
 
         sieve p arr =
             let
@@ -535,12 +638,18 @@ primesBelow n =
         trueIndices =
             let
                 f i pred =
-                    if pred then Just i else Nothing
+                    if pred then
+                        Just i
+                    else
+                        Nothing
 
                 g x acc =
                     case x of
-                        Just x -> x :: acc
-                        Nothing -> acc
+                        Just x ->
+                            x :: acc
+
+                        Nothing ->
+                            acc
             in
                 Array.indexedMap f >> Array.foldr g []
     in
@@ -559,16 +668,16 @@ primeFactors n =
     let
         go p n factors =
             if p * p > n then
-                List.reverse factors ++ [n]
-
+                List.reverse factors ++ [ n ]
             else if n % p == 0 then
                 go p (n // p) (p :: factors)
-
             else
                 go (p + 1 + p % 2) n factors
-
     in
-        if n <= 1 then [] else go 2 n []
+        if n <= 1 then
+            []
+        else
+            go 2 n []
 
 
 {-| Return a list of all prime-exponent pairs for a given positive integer's
@@ -579,16 +688,18 @@ than 2, the empty list is returned.
     primeExponents 531764 == [(2, 1), (11, 2), (13, 3)]  -- 2^1 * 11^2 * 13^3
     primeExponents 1 == []                               -- empty product
 -}
-primeExponents : Int -> List (Int, Int)
+primeExponents : Int -> List ( Int, Int )
 primeExponents =
     let
         runLengthCons x acc =
             case acc of
-                [] -> [(x, 1)]
-                ((y, n) :: rest) ->
+                [] ->
+                    [ ( x, 1 ) ]
+
+                ( y, n ) :: rest ->
                     if x == y then
-                        ((y, n + 1) :: rest)
+                        (( y, n + 1 ) :: rest)
                     else
-                        ((x, 1) :: (y, n) :: rest)
+                        (( x, 1 ) :: ( y, n ) :: rest)
     in
         primeFactors >> List.foldr runLengthCons []
