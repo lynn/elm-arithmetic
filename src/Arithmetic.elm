@@ -419,8 +419,8 @@ totient n =
 {-| Given `a` and `b`, compute integers `(d, u, v)` so that `a * u + b * v ==
 d` where `d == gcd a b`. (These are known as [Bézout coefficients](
 <https://en.wikipedia.org/wiki/B%C3%A9zout%27s_identity>). If the inputs are both
-positive, the solution returned satisfies `abs u < b // gcd a b` and
-`abs v < a // gcd a b`.)
+positive, the solution returned satisfies `abs u <= b // gcd a b` and
+`abs v <= a // gcd a b`.)
 
     extendedGcd 1215 465 == (15, -13, 34)
         -- because gcd 1215 465 == 15 == -13 * 1215 + 34 * 465
@@ -488,7 +488,7 @@ powerMod base exponent modulus =
                         else
                             r
                 in
-                go (b * modBy modulus b) (e // 2) r_
+                go (modBy modulus (b * b)) (e // 2) r_
     in
     if modulus == 1 then
         0
@@ -768,9 +768,9 @@ primeFactors n =
 prime decomposition, with the primes in ascending order. If the input is less
 than 2, the empty list is returned.
 
-    primeExponents 24 == [ ( 2, 3 ), ( 5, 2 ) ] -- 2^3 * 5^2
+    primeExponents 24 == [ ( 2, 3 ), ( 3, 1 ) ] -- 2^3 * 3^1
 
-    primeExponents 531764 == [ ( 2, 1 ), ( 11, 2 ), ( 13, 3 ) ] -- 2^1 * 11^2 * 13^3
+    primeExponents 531764 == [ ( 2, 2 ), ( 37, 1 ), ( 3593, 1 ) ] -- 2^1 * 11^2 * 13^3
 
     primeExponents 1 == [] -- empty product
 

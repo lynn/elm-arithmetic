@@ -23,6 +23,8 @@ import Arithmetic
         , lcm
         , modularInverse
         , powerMod
+        , primeExponents
+        , primeFactors
         , primesBelow
         , properDivisors
         , safeSquareRoot
@@ -270,23 +272,35 @@ suite =
                         |> Expect.equal expected
             ]
         , describe "Arithmetic.extendedGcd"
-            [ test "extendedGcd example problem" <|
+            [ test "extendedGcd example problem 1" <|
                 \_ ->
                     extendedGcd 1215 465
                         |> Expect.equal ( 15, -13, 34 )
+            , test "extendedGcd example problem 2" <|
+                \_ ->
+                    extendedGcd 24 31
+                        |> Expect.equal ( 1, -9, 7 )
+            , fuzz2 int int "extendedGcd fuzzy test" <|
+                \a b ->
+                    let
+                        ( _, u, v ) =
+                            extendedGcd a b
+                    in
+                    if a == 0 || b == 0 then
+                        extendedGcdTestChecker a b u v
+                            |> Expect.false "extendedGcdTestChecker should return false"
 
-            -- , fuzz2 int int "extendedGcd fuzzy test" <|
-            --     \a b ->
-            --         let
-            --             ( _, u, v ) =
-            --                 extendedGcd a b
-            --         in
-            --         if a == 0 || b == 0 then
-            --             extendedGcdTestChecker a b u v
-            --                 |> Expect.false "extendedGcdTestChecker should return false"
-            --         else
-            --             extendedGcdTestChecker a b u v
-            --                 |> Expect.true "extendedGcdTestChecker should return true"
+                    else
+                        extendedGcdTestChecker a b u v
+                            |> Expect.true "extendedGcdTestChecker should return true"
+            , fuzz2 int int "extendedGcd fuzzy test 2" <|
+                \a b ->
+                    let
+                        ( d, u, v ) =
+                            extendedGcd a b
+                    in
+                    (a * u) + ( b * v ) == d
+                        |> Expect.true "should follow the au + bv = d identity" 
             ]
         , describe "Arithmetic.powerMod"
             [ test "powerMod example test" <|
@@ -334,6 +348,34 @@ suite =
                     primesBelow 17
                         |> Expect.equal [ 2, 3, 5, 7, 11, 13 ]
             ]
+        , describe "Arithmetic.primeFactors"
+            [ test "primeFactors example test 1" <|
+                \_ ->
+                    primeFactors 24
+                        |> Expect.equal [ 2, 2, 2, 3 ]
+            , test "primeFactors example test 2" <|
+                \_ ->
+                    primeFactors 767
+                        |> Expect.equal [ 13, 59 ]
+            , test "primeFactors example test 3" <|
+                \_ ->
+                    primeFactors 1
+                        |> Expect.equal []
+            ]
+        , describe "Arithmetic.primeExponents"
+            [ test "primeExponents example test 1" <|
+                \_ ->
+                    primeExponents 24
+                        |> Expect.equal [ ( 2, 3 ), ( 3, 1 ) ]
+            , test "primeExponents example test 2" <|
+                \_ ->
+                    primeExponents 531764
+                        |> Expect.equal [ ( 2, 2 ), ( 37, 1 ), ( 3593, 1 ) ]
+            , test "primeExponents example test 3" <|
+                \_ ->
+                    primeExponents 1
+                        |> Expect.equal []
+            ]
         ]
 
 
@@ -355,9 +397,20 @@ getDigits =
         << abs
 
 
+
+{-
+   https://en.wikipedia.org/wiki/B%C3%A9zout%27s_identity#Structure_of_solutions
+-}
+
+
 extendedGcdTestChecker : Int -> Int -> Int -> Int -> Bool
 extendedGcdTestChecker a b u v =
-    (abs u < b // gcd a b) && (abs v < a // gcd a b)
+    let
+        gcdResult = gcd a b
+        uCheck = abs u <= abs (b // gcdResult)
+        vCheck = abs v <= abs (a // gcdResult)
+    in
+    uCheck && vCheck
 
 
 unfoldr : (b -> Maybe ( a, b )) -> b -> List a
