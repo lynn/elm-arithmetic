@@ -277,28 +277,17 @@ isCube n =
         r =
             modBy 63 n
     in
-    (r
-        == 0
-        || r
-        == 1
-        || r
-        == 8
-        || r
-        == 27
-        || r
-        == 28
-        || r
-        == 35
-        || r
-        == 36
-        || r
-        == 55
-        || r
-        == 62
+    ((r == 0)
+        || (r == 1)
+        || (r == 8)
+        || (r == 27)
+        || (r == 28)
+        || (r == 35)
+        || (r == 36)
+        || (r == 55)
+        || (r == 62)
     )
-        && intCubeRoot n
-        ^ 3
-        == n
+        && (intCubeRoot (n ^ 3) == n)
 
 
 
@@ -345,7 +334,8 @@ properDivisors n =
 
 {-| Get the number of divisors of a number (counting itself).
 
-    divisorCount 20 = 6
+    divisorCount 20 =
+        6
 
 -}
 divisorCount : Int -> Int
