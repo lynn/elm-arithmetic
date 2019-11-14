@@ -31,7 +31,7 @@ import Arithmetic
         , toBase
         , totient
         )
-import Expect exposing (FloatingPointTolerance(..))
+import Expect exposing (Expectation, FloatingPointTolerance(..))
 import Fuzz exposing (float, int)
 import Test exposing (Test, describe, fuzz, fuzz2, test)
 
@@ -40,24 +40,32 @@ suite : Test
 suite =
     describe "Arithmetic module"
         [ describe "Arithmetic.isEven"
-            [ test "isEven Detects even numbers correctly" <|
+            [ test "isEven example test 1" <|
                 \_ ->
-                    List.all isEven [ 2, 4, 6, 8, 10, 12, 14, 16, 18, 20 ]
-                        |> Expect.true "Expected all to be even"
-            , test "isEven Detects odd numbers correctly" <|
+                    isEven 2
+                        |> Expect.true "isEven 2 should return True"
+            , test "isEven example test 2" <|
                 \_ ->
-                    List.any isEven [ 1, 3, 5, 7, 9, 11, 13, 15, 17, 19 ]
-                        |> Expect.false "Expected all to be odd"
+                    isEven 3
+                        |> Expect.false "isEven 3 should return False"
+            , test "isEven detects even numbers correctly" <|
+                \_ ->
+                    List.filter isEven (List.range 1 20)
+                        |> Expect.equalLists [ 2, 4, 6, 8, 10, 12, 14, 16, 18, 20 ]
             ]
         , describe "Arithmetic.isOdd"
-            [ test "isOdd Detects odd numbers correctly" <|
+            [ test "isOdd example test 1" <|
                 \_ ->
-                    List.all isOdd [ 1, 3, 5, 7, 9, 11, 13, 15, 17, 19 ]
-                        |> Expect.true "Expected all to be odd"
-            , test "isOdd Detects even numbers correctly" <|
+                    isOdd 2
+                        |> Expect.false "isOdd 2 should return False"
+            , test "isOdd example test 2" <|
                 \_ ->
-                    List.any isOdd [ 2, 4, 6, 8, 10, 12, 14, 16, 18, 20 ]
-                        |> Expect.false "Expected all to be even"
+                    isOdd 3
+                        |> Expect.true "isOdd 3 should return True"
+            , test "isOdd detects odd numbers correctly" <|
+                \_ ->
+                    List.filter isOdd (List.range 1 20)
+                        |> Expect.equalLists [ 1, 3, 5, 7, 9, 11, 13, 15, 17, 19 ]
             ]
         , describe "Arithmetic.toBase"
             [ test "toBase converts to base 2 correctly" <|
@@ -78,13 +86,25 @@ suite =
                 \_ ->
                     fromBase 2 [ 1, 0, 1, 0, 1, 0 ]
                         |> Expect.equal 42
+            , test "fromBase converts from base 8 correctly" <|
+                \_ ->
+                    fromBase 8 [ 1, 5, 0, 4, 6 ]
+                        |> Expect.equal 6694
             , fuzz int "fromBase does nothing on base 10 numbers" <|
                 \fuzzInt ->
                     fromBase 10 (getDigits fuzzInt)
                         |> Expect.equal (abs fuzzInt)
             ]
         , describe "Arithmetic.safeSquareRoot"
-            [ fuzz float "safeSquareRoot returns Nothing for negatives and Just num for positives" <|
+            [ test "safeSquareRoot example test 1" <|
+                \_ ->
+                    safeSquareRoot 5.76
+                        |> Expect.equal (Just 2.4)
+            , test "safeSquareRoot example test 2" <|
+                \_ ->
+                    safeSquareRoot -1
+                        |> Expect.equal Nothing
+            , fuzz float "safeSquareRoot returns Nothing for negatives and Just num for positives" <|
                 \fuzzFloat ->
                     if fuzzFloat < 0 then
                         safeSquareRoot fuzzFloat
@@ -95,7 +115,15 @@ suite =
                             |> Expect.equal (Just (sqrt fuzzFloat))
             ]
         , describe "Arithmetic.intSquareRoot"
-            [ test "intSquareRoot returns the correct value for 21" <|
+            [ test "intSquareRoot example test 1" <|
+                \_ ->
+                    intSquareRoot 20
+                        |> Expect.equal 4
+            , test "intSquareRoot example test 2" <|
+                \_ ->
+                    intSquareRoot 25
+                        |> Expect.equal 5
+            , test "intSquareRoot returns the correct value for 21" <|
                 \_ ->
                     intSquareRoot 21
                         |> Expect.equal 5
@@ -105,7 +133,15 @@ suite =
                         |> Expect.equal 10
             ]
         , describe "Arithmetic.exactIntSquareRoot"
-            [ test "exactIntSquareRoot returns Nothing for 35" <|
+            [ test "exactIntSquareRoot example test 1" <|
+                \_ ->
+                    exactIntSquareRoot 20
+                        |> Expect.equal Nothing
+            , test "exactIntSquareRoot example test 2" <|
+                \_ ->
+                    exactIntSquareRoot 25
+                        |> Expect.equal (Just 5)
+            , test "exactIntSquareRoot returns Nothing for 35" <|
                 \_ ->
                     exactIntSquareRoot 35
                         |> Expect.equal Nothing
@@ -119,19 +155,43 @@ suite =
                         |> Expect.equal Nothing
             ]
         , describe "Arithmetic.isSquare"
-            [ test "isSquare filters the squares out" <|
+            [ test "isSquare example test 1" <|
                 \_ ->
-                    List.filter isSquare (List.range 1 100)
-                        |> Expect.equalLists [ 1, 4, 9, 16, 25, 36, 49, 64, 81, 100 ]
+                    isSquare 20
+                        |> Expect.false "20 is not a square number"
+            , test "isSquare example test 2" <|
+                \_ ->
+                    isSquare 25
+                        |> Expect.true "25 is a square number"
+            , test "isSquare 0 should return true" <|
+                \_ ->
+                    isSquare 0
+                        |> Expect.true "Should return true"
+            , test "isSquare filters the squares out" <|
+                \_ ->
+                    List.filter isSquare (List.range 1 256)
+                        |> Expect.equalLists [ 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 256 ]
             ]
         , describe "Arithmetic.cubeRoot"
-            [ fuzz float "cubeRoot returns correct values when fuzzily tested" <|
+            [ test "cubeRoot example test 1" <|
+                \_ ->
+                    cubeRoot 15.625
+                        |> Expect.within testingFloatTolerance 2.5
+            , fuzz float "cubeRoot returns correct values when fuzzily tested" <|
                 \fuzzFloat ->
                     (cubeRoot <| abs fuzzFloat)
-                        |> Expect.within (Absolute 0.000001) (abs fuzzFloat ^ (1 / 3))
+                        |> Expect.within testingFloatTolerance (abs fuzzFloat ^ (1 / 3))
             ]
         , describe "Arithmetic.intCubeRoot"
-            [ test "intCubeRoot returns NaN for negatives" <|
+            [ test "intCubeRoot example test 1" <|
+                \_ ->
+                    intCubeRoot 800
+                        |> Expect.equal 9
+            , test "intCubeRoot example test 2" <|
+                \_ ->
+                    intCubeRoot 1000
+                        |> Expect.equal 10
+            , test "intCubeRoot returns NaN for negatives" <|
                 \_ ->
                     (isNaN <| toFloat <| intCubeRoot -5)
                         |> Expect.true "Expected intCubeRoot to return NaN"
@@ -145,13 +205,31 @@ suite =
                         |> Expect.equal 5
             ]
         , describe "Arithmetic.exactIntCubeRoot"
-            [ test "exactIntCubeRoot returns the exact cubes after mapping" <|
+            [ test "exactIntCubeRoot example test 1" <|
                 \_ ->
-                    List.map (\x -> x ^ 3) (List.filterMap exactIntCubeRoot (List.range 1 343))
+                    exactIntCubeRoot 800
+                        |> Expect.equal Nothing
+            , test "exactIntCubeRoot example test 2" <|
+                \_ ->
+                    exactIntCubeRoot 1000
+                        |> Expect.equal (Just 10)
+            , test "exactIntCubeRoot returns the exact cubes after mapping" <|
+                \_ ->
+                    List.map
+                        (\x -> x ^ 3)
+                        (List.filterMap exactIntCubeRoot (List.range 1 343))
                         |> Expect.equalLists [ 1, 8, 27, 64, 125, 216, 343 ]
             ]
         , describe "Arithmetic.isCube"
-            [ test "isCube detects cubes properly" <|
+            [ test "isCube example test 1" <|
+                \_ ->
+                    isCube 800
+                        |> Expect.false "isCube 800 should return False"
+            , test "isCube example test 2" <|
+                \_ ->
+                    isCube 1000
+                        |> Expect.true "isCube 1000 should return True"
+            , test "isCube detects cubes properly" <|
                 \_ ->
                     let
                         input =
@@ -161,7 +239,15 @@ suite =
                         |> Expect.true ("Expected " ++ String.fromInt input ++ " to be a cube")
             ]
         , describe "Arithmetic.divides"
-            [ test "divides returns true for correct input" <|
+            [ test "divides example test 1" <|
+                \_ ->
+                    divides 10 120
+                        |> Expect.true "divides 10 120 should return True"
+            , test "divides example test 2" <|
+                \_ ->
+                    divides 10 125
+                        |> Expect.false "divides 10 125 should return False"
+            , test "divides returns true for correct input" <|
                 \_ ->
                     let
                         num1 =
@@ -174,13 +260,9 @@ suite =
                         |> Expect.true ("Expected " ++ String.fromInt num2 ++ " to divide " ++ String.fromInt num1)
             ]
         , describe "Arithmetic.divisors"
-            [ let
-                input =
-                    20
-              in
-              test ("divisors returns the correct divisors for " ++ String.fromInt input) <|
+            [ test "divisors example test 1" <|
                 \_ ->
-                    divisors input
+                    divisors 20
                         |> Expect.equalLists [ 1, 2, 4, 5, 10, 20 ]
             , let
                 input =
@@ -192,13 +274,9 @@ suite =
                         |> Expect.equalLists [ 1 ]
             ]
         , describe "Arithmetic.properDivisors"
-            [ let
-                input =
-                    20
-              in
-              test ("properDivisors returns the correct divisors for " ++ String.fromInt input) <|
+            [ test "properDivisors example test 1" <|
                 \_ ->
-                    properDivisors input
+                    properDivisors 20
                         |> Expect.equalLists [ 1, 2, 4, 5, 10 ]
             , let
                 input =
@@ -210,13 +288,21 @@ suite =
                         |> Expect.equalLists [ 1 ]
             ]
         , describe "Arithmetic.divisorCount"
-            [ fuzz int "divisorCount correct for random input" <|
+            [ test "divisorCount example test 1" <|
+                \_ ->
+                    divisorCount 20
+                        |> Expect.equal 6
+            , fuzz int "divisorCount correct for random input" <|
                 \fuzzInt ->
                     divisorCount fuzzInt
                         |> Expect.equal (List.length (divisors fuzzInt))
             ]
         , describe "Arithmetic.gcd"
-            [ test "gcd should return 2" <|
+            [ test "gcd example test 1" <|
+                \_ ->
+                    gcd 56 80
+                        |> Expect.equal 8
+            , test "gcd should return 2" <|
                 \_ ->
                     gcd 2 0
                         |> Expect.equal 2
@@ -228,13 +314,13 @@ suite =
                 \_ ->
                     gcd 10 100
                         |> Expect.equal 10
-            , test "gcd should return 8" <|
-                \_ ->
-                    gcd 56 80
-                        |> Expect.equal 8
             ]
         , describe "Arithmetic.lcm"
-            [ test "lcm should return 0" <|
+            [ test "lcm example test 1" <|
+                \_ ->
+                    lcm 56 80
+                        |> Expect.equal 560
+            , test "lcm should return 0" <|
                 \_ ->
                     lcm 0 3
                         |> Expect.equal 0
@@ -242,68 +328,63 @@ suite =
                 \_ ->
                     lcm 3 0
                         |> Expect.equal 0
-            , test "lcm should return 560" <|
-                \_ ->
-                    lcm 56 80
-                        |> Expect.equal 560
             ]
         , describe "Arithmetic.isCoprimeTo"
-            [ test "isCoprimeTo" <|
+            [ test "isCoprimeTo example 1" <|
                 \_ ->
                     isCoprimeTo 56 80
                         |> Expect.false "Should not be coprime"
+            , test "isCoprimeTo example 2" <|
+                \_ ->
+                    isCoprimeTo 5 8
+                        |> Expect.true "Should be coprime"
+            , test "isCoprimeTo 2 3 should return True" <|
+                \_ ->
+                    isCoprimeTo 2 3
+                        |> Expect.true "Should be coprime"
             ]
         , describe "Arithmetic.totient"
-            [ let
-                expected =
-                    60
-              in
-              test ("totient should return " ++ String.fromInt expected) <|
+            [ test "totient example test 1" <|
                 \_ ->
                     totient 99
-                        |> Expect.equal expected
-            , let
-                expected =
-                    560
-              in
-              test ("totient should return " ++ String.fromInt expected) <|
+                        |> Expect.equal 60
+            , test "totient example test 2" <|
                 \_ ->
                     totient 1450
-                        |> Expect.equal expected
+                        |> Expect.equal 560
             ]
         , describe "Arithmetic.extendedGcd"
             [ test "extendedGcd example problem 1" <|
                 \_ ->
                     extendedGcd 1215 465
                         |> Expect.equal ( 15, -13, 34 )
-            , test "extendedGcd example problem 2" <|
+            , test "extendedGcd 24 31 should return ( 1, -9, 7)" <|
                 \_ ->
                     extendedGcd 24 31
                         |> Expect.equal ( 1, -9, 7 )
+            , test "extendedGcd 0 0 should return ( 0, 1, 0)" <|
+                \_ ->
+                    extendedGcd 0 0
+                        |> Expect.equal ( 0, 1, 0 )
             , fuzz2 int int "extendedGcd fuzzy test" <|
                 \a b ->
                     let
                         ( _, u, v ) =
                             extendedGcd a b
                     in
-                    if a == 0 || b == 0 then
-                        extendedGcdTestChecker a b u v
-                            |> Expect.false "extendedGcdTestChecker should return false"
-
-                    else
-                        extendedGcdTestChecker a b u v
-                            |> Expect.true "extendedGcdTestChecker should return true"
+                    extendedGcdTestChecker a b u v
+                        |> Expect.true "extendedGcdTestChecker should return true"
             , fuzz2 int int "extendedGcd fuzzy test 2" <|
                 \a b ->
                     let
                         ( d, u, v ) =
                             extendedGcd a b
                     in
-                    (a * u) + ( b * v ) == d
-                        |> Expect.true "should follow the au + bv = d identity" 
+                    ((a * u) + (b * v) == d && gcd a b == d)
+                        |> Expect.true "should follow the au + bv = d and gcd a b = d identity"
             ]
         , describe "Arithmetic.powerMod"
-            [ test "powerMod example test" <|
+            [ test "powerMod example test 1" <|
                 \_ ->
                     powerMod 4147 8671 1000
                         |> Expect.equal 803
@@ -333,17 +414,25 @@ suite =
                         |> Expect.equal (Just 1000)
             ]
         , describe "Arithmetic.isPrime"
-            [ test "isPrime filters out the first few primes" <|
+            [ test "isPrime example test 1" <|
+                \_ ->
+                    isPrime 2357
+                        |> Expect.true "isPrime 2357 should return True"
+            , test "isPrime example test 2" <|
+                \_ ->
+                    isPrime 500
+                        |> Expect.false "isPrime 500 should return False"
+            , test "isPrime filters out the first few primes" <|
                 \_ ->
                     List.filter isPrime (List.range 1 100)
-                        |> Expect.equalLists [ 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97 ]
+                        |> Expect.equalLists primesUnderOneHundred
             ]
         , describe "Arithmetic.primesBelow"
-            [ test "primesBelow example 1" <|
+            [ test "primesBelow example test 1" <|
                 \_ ->
                     primesBelow 4
                         |> Expect.equal [ 2, 3 ]
-            , test "primesBelow example 2" <|
+            , test "primesBelow example test 2" <|
                 \_ ->
                     primesBelow 17
                         |> Expect.equal [ 2, 3, 5, 7, 11, 13 ]
@@ -375,12 +464,36 @@ suite =
                 \_ ->
                     primeExponents 1
                         |> Expect.equal []
+            , fuzz int "primeExponents fuzz test" <|
+                \fuzzInt ->
+                    if fuzzInt < 2 then
+                        primeExponents fuzzInt
+                            |> Expect.equalLists []
+
+                    else
+                        fromPrimeExponentsToNumber (primeExponents fuzzInt)
+                            |> Expect.equal fuzzInt
             ]
         ]
 
 
 
 -- HELPERS
+
+
+just : (expected -> actual -> Expectation) -> expected -> Maybe actual -> Expectation
+just expect_ expectedValue actualMaybe =
+    case actualMaybe of
+        Just actualValue ->
+            actualValue |> expect_ expectedValue
+
+        Nothing ->
+            Expect.fail "Expected a Just but got Nothing"
+
+
+testingFloatTolerance : FloatingPointTolerance
+testingFloatTolerance =
+    Absolute 0.000001
 
 
 getDigits : Int -> List Int
@@ -397,22 +510,6 @@ getDigits =
         << abs
 
 
-
-{-
-   https://en.wikipedia.org/wiki/B%C3%A9zout%27s_identity#Structure_of_solutions
--}
-
-
-extendedGcdTestChecker : Int -> Int -> Int -> Int -> Bool
-extendedGcdTestChecker a b u v =
-    let
-        gcdResult = gcd a b
-        uCheck = abs u <= abs (b // gcdResult)
-        vCheck = abs v <= abs (a // gcdResult)
-    in
-    uCheck && vCheck
-
-
 unfoldr : (b -> Maybe ( a, b )) -> b -> List a
 unfoldr f seed =
     case f seed of
@@ -421,3 +518,35 @@ unfoldr f seed =
 
         Just ( a, b ) ->
             a :: unfoldr f b
+
+
+primesUnderOneHundred : List Int
+primesUnderOneHundred =
+    [ 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97 ]
+
+
+
+{- https://en.wikipedia.org/wiki/B%C3%A9zout%27s_identity#Structure_of_solutions -}
+
+
+extendedGcdTestChecker : Int -> Int -> Int -> Int -> Bool
+extendedGcdTestChecker a b u v =
+    let
+        eGcdTest x y =
+            let
+                absY =
+                    abs y
+            in
+            abs x < absY || absY <= 1
+    in
+    eGcdTest u b && eGcdTest v a
+
+
+fromPrimeExponentsToNumber : List ( Int, Int ) -> Int
+fromPrimeExponentsToNumber nums =
+    let
+        raiseExponentTuple : ( Int, Int ) -> Int
+        raiseExponentTuple ( x, y ) =
+            x ^ y
+    in
+    List.product (List.map raiseExponentTuple nums)

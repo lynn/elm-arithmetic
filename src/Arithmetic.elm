@@ -307,9 +307,9 @@ isCube n =
 
 {-| Test whether one number divides another.
 
-    10 `divides` 120 == True
+    divides 10 120 == True
 
-    10 `divides` 125 == False
+    divides 10 125 == False
 
 -}
 divides : Int -> Int -> Bool
@@ -344,6 +344,9 @@ properDivisors n =
 
 
 {-| Get the number of divisors of a number (counting itself).
+
+    divisorCount 20 = 6
+
 -}
 divisorCount : Int -> Int
 divisorCount =
@@ -386,9 +389,9 @@ lcm a b =
 
 {-| Test whether two integers are coprime.
 
-    56 `isCoprimeTo` 80 == False
+    isCoprimeTo 56 80 == False
 
-    5 `isCoprimeTo` 8
+    isCoprimeTo 5 8 == True
 
 -}
 isCoprimeTo : Int -> Int -> Bool
@@ -504,6 +507,7 @@ powerMod base exponent modulus =
 
        shiftToOdd 999 == (0, 999)
        shiftToOdd 1000 == (3, 125)
+
 -}
 
 
@@ -560,14 +564,14 @@ theorem](https://en.wikipedia.org/wiki/Chinese_remainder_theorem) tells us that
 The result is a solution `Just x` with `0 <= x < M` in the first case; or
 `Nothing` if the system is unsolvable.
 
-    chineseRemainder [(10, 11), (4, 12), (12, 13)] == Just 1000
-        -- Solution to x = 10 (mod 11), x = 4 (mod 12), x = 12 (mod 13).
+    chineseRemainder [] == Just 0
+        -- The trivial solution, modulo M = 1.
 
     chineseRemainder [(2, 3), (4, 6)] == Nothing
         -- 3 and 6 are not coprime, so there is no solution.
 
-    chineseRemainder [] == Just 0
-        -- The trivial solution, modulo M = 1.
+    chineseRemainder [(10, 11), (4, 12), (12, 13)] == Just 1000
+        -- Solution to x = 10 (mod 11), x = 4 (mod 12), x = 12 (mod 13).
 
 -}
 chineseRemainder : List ( Int, Int ) -> Maybe Int
@@ -770,7 +774,7 @@ than 2, the empty list is returned.
 
     primeExponents 24 == [ ( 2, 3 ), ( 3, 1 ) ] -- 2^3 * 3^1
 
-    primeExponents 531764 == [ ( 2, 2 ), ( 37, 1 ), ( 3593, 1 ) ] -- 2^1 * 11^2 * 13^3
+    primeExponents 531764 == [ ( 2, 2 ), ( 37, 1 ), ( 3593, 1 ) ] -- 2^2 * 37^1 * 37^1
 
     primeExponents 1 == [] -- empty product
 
