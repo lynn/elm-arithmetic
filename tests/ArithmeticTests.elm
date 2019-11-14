@@ -31,7 +31,7 @@ import Arithmetic
         , toBase
         , totient
         )
-import Expect exposing (Expectation, FloatingPointTolerance(..))
+import Expect exposing (FloatingPointTolerance(..))
 import Fuzz exposing (float, int)
 import Test exposing (Test, describe, fuzz, fuzz2, test)
 
@@ -479,16 +479,6 @@ suite =
 
 
 -- HELPERS
-
-
-just : (expected -> actual -> Expectation) -> expected -> Maybe actual -> Expectation
-just expect_ expectedValue actualMaybe =
-    case actualMaybe of
-        Just actualValue ->
-            actualValue |> expect_ expectedValue
-
-        Nothing ->
-            Expect.fail "Expected a Just but got Nothing"
 
 
 testingFloatTolerance : FloatingPointTolerance
