@@ -328,6 +328,22 @@ suite =
                 \_ ->
                     lcm 3 0
                         |> Expect.equal 0
+            , fuzz2 int int "lcm fuzz test" <|
+                \a b ->
+                    let
+                        result =
+                            lcm a b
+                    in
+                    if a == 0 || b == 0 then
+                        result
+                            |> Expect.equal 0
+
+                    else if outOfIntBounds a || outOfIntBounds b || outOfIntBounds result then
+                        Expect.pass
+
+                    else
+                        (divides a result && divides b result)
+                            |> Expect.true "lcm arguments should divide into the result"
             ]
         , describe "Arithmetic.isCoprimeTo"
             [ test "isCoprimeTo example 1" <|
@@ -380,8 +396,12 @@ suite =
                         ( d, u, v ) =
                             extendedGcd a b
                     in
-                    ((a * u) + (b * v) == d && gcd a b == d)
-                        |> Expect.true "should follow the au + bv = d and gcd a b = d identity"
+                    if List.any outOfIntBounds [ a, b, d, u, v, a * u, b * v ] then
+                        Expect.pass
+
+                    else
+                        ((a * u) + (b * v) == d && gcd a b == d)
+                            |> Expect.true "should follow the au + bv = d and gcd a b = d identity"
             ]
         , describe "Arithmetic.powerMod"
             [ test "powerMod example test 1" <|
@@ -535,8 +555,22 @@ extendedGcdTestChecker a b u v =
 fromPrimeExponentsToNumber : List ( Int, Int ) -> Int
 fromPrimeExponentsToNumber nums =
     let
-        raiseExponentTuple : ( Int, Int ) -> Int
         raiseExponentTuple ( x, y ) =
             x ^ y
     in
     List.product (List.map raiseExponentTuple nums)
+
+
+intMaxValue : Int
+intMaxValue =
+    (2 ^ 31) - 1
+
+
+intMinValue : Int
+intMinValue =
+    -(2 ^ 31)
+
+
+outOfIntBounds : Int -> Bool
+outOfIntBounds x =
+    x < intMinValue || x > intMaxValue

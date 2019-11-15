@@ -102,7 +102,7 @@ made positive first.
 toBase : Int -> Int -> List Int
 toBase base n =
     let
-        n_ =
+        absN =
             abs n
 
         go x acc =
@@ -112,7 +112,7 @@ toBase base n =
             else
                 go (x // base) (modBy base x :: acc)
     in
-    go n_ []
+    go absN []
 
 
 {-| Interpret a list of digits as a number in the given base. The input is
