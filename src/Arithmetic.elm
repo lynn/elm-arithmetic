@@ -25,7 +25,7 @@ with integers, primes, divisibility, et cetera.
 
 # Divisors
 
-@docs divides, isMultipleOf, divisors, properDivisors, divisorCount
+@docs divides, divisors, properDivisors, divisorCount
 
 
 # GCD and LCM
