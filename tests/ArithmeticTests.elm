@@ -169,6 +169,7 @@ suite =
                         |> Expect.true "Should return true"
             , test "isSquare filters the squares out" <|
                 \_ ->
+                    -- Enough to get the first 16 squares
                     List.filter isSquare (List.range 1 256)
                         |> Expect.equalLists [ 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 256 ]
             ]
@@ -237,6 +238,11 @@ suite =
                     in
                     isCube input
                         |> Expect.true ("Expected " ++ String.fromInt input ++ " to be a cube")
+            , test "isCube filters the cubes out" <|
+                \_ ->
+                    -- Enough to get the first 16 cubes
+                    List.filter isCube (List.range 1 4096)
+                        |> Expect.equalLists [ 1, 8, 27, 64, 125, 216, 343, 512, 729, 1000, 1331, 1728, 2197, 2744, 3375, 4096 ]
             ]
         , describe "Arithmetic.divides"
             [ test "divides example test 1" <|
