@@ -89,7 +89,7 @@ isOdd =
 {- Base conversion -}
 
 
-{-| Convert a number to a list of digits in the given base. The input number is
+{-| Convert an integer to a list of digits in the given base. The input integer is
 made positive first.
 
 
@@ -115,7 +115,7 @@ toBase base n =
     go absN []
 
 
-{-| Interpret a list of digits as a number in the given base. The input is
+{-| Interpret a list of digits as an integer in the given base. The input is
 expected to consist of integers `d` for which `0 <= d < base`.
 
     fromBase 2 [ 1, 0, 1, 0, 1, 0 ] =
@@ -131,7 +131,7 @@ fromBase base =
 {- Squares -}
 
 
-{-| Safely take the square root of a number: return `Just (sqrt n)` if
+{-| Safely take the square root of a float: return `Just (sqrt n)` if
 the input `n` is nonnegative; otherwise, return `Nothing`.
 
     sqrt 5.76 == Just 2.4
@@ -182,7 +182,7 @@ exactIntSquareRoot n =
         Nothing
 
 
-{-| Test whether a number is a square.
+{-| Test whether an integer is a square.
 
     isSquare 20 == False
 
@@ -195,33 +195,23 @@ isSquare n =
         r =
             modBy 48 n
     in
-    (r
-        == 0
-        || r
-        == 1
-        || r
-        == 4
-        || r
-        == 9
-        || r
-        == 16
-        || r
-        == 25
-        || r
-        == 33
-        || r
-        == 36
+    ((r == 0)
+        || (r == 1)
+        || (r == 4)
+        || (r == 9)
+        || (r == 16)
+        || (r == 25)
+        || (r == 33)
+        || (r == 36)
     )
-        && intSquareRoot n
-        ^ 2
-        == n
+        && (intSquareRoot n ^ 2 == n)
 
 
 
 {- Cubes -}
 
 
-{-| Take the cube root of a number.
+{-| Take the cube root of a float.
 
     cubeRoot 15.625 == 2.5
 
@@ -264,7 +254,7 @@ exactIntCubeRoot n =
         Nothing
 
 
-{-| Test whether a number is a cube.
+{-| Test whether an integer is a cube.
 
     isCube 800 == False
 
@@ -287,14 +277,14 @@ isCube n =
         || (r == 55)
         || (r == 62)
     )
-        && (intCubeRoot (n ^ 3) == n)
+        && (intCubeRoot n ^ 3 == n)
 
 
 
 {- Divisors -}
 
 
-{-| Test whether one number divides another.
+{-| Test whether one integer divides another.
 
     divides 10 120 == True
 
@@ -306,7 +296,7 @@ divides a b =
     modBy a b == 0
 
 
-{-| Get all divisors of a number, in ascending order.
+{-| Get all divisors of an integer, in ascending order.
 
     divisors 20 == [ 1, 2, 4, 5, 10, 20 ]
 
@@ -320,7 +310,7 @@ divisors =
     primeExponents >> List.foldr f [ 1 ] >> List.sort
 
 
-{-| Get all proper divisors (i.e., divisors less than the input) of a number,
+{-| Get all proper divisors (i.e., divisors less than the input) of an integer,
 in ascending order.
 
     properDivisors 20 == [ 1, 2, 4, 5, 10 ]
@@ -332,7 +322,7 @@ properDivisors n =
         |> List.filter ((/=) n)
 
 
-{-| Get the number of divisors of a number (counting itself).
+{-| Get the number of divisors of an integer (counting itself).
 
     divisorCount 20 =
         6
@@ -491,9 +481,9 @@ powerMod base exponent modulus =
 
 
 
-{- Halve this number until it is odd. Then, return a tuple `(k, m)`, where
+{- Halve this integer until it is odd. Then, return a tuple `(k, m)`, where
    `k` is the number of times the input was halved, and `m` is the resulting odd
-   number. In other words, the original number equals `(2 ^ k) * m`.
+   integer. In other words, the original integer equals `(2 ^ k) * m`.
 
        shiftToOdd 999 == (0, 999)
        shiftToOdd 1000 == (3, 125)
@@ -514,7 +504,7 @@ shiftToOdd n =
     f 0 n
 
 
-{-| Given a number `a` and a modulus `n`, return the multiplicative inverse of
+{-| Given an integer `a` and a modulus `n`, return the multiplicative inverse of
 `a` modulo `n`, if it exists. That is: try to return `Just b`, with
 `0 <= b < n`, so that `a * b == 1` modulo `n`, but return `Nothing` if no such
 `b` exists. (`b` exists precisely when `a` and the modulus `n` are coprime.)
